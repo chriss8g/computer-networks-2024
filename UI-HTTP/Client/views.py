@@ -20,7 +20,7 @@ def HomePageView(request):
             # Envia la solicitud HTTP utilizando la función existente
             try:
                 status, body, headers = send_request(host, port, method, resource, data)
-                if(method in ["GET", "POST", "PUT"]):
+                if(is_valid_json(body) and method in ["GET", "POST", "PUT"]):
                     json_obj = json.loads(body)
                     body = json.dumps(json_obj, indent=4, sort_keys=True)
             except Exception as e:
@@ -31,3 +31,10 @@ def HomePageView(request):
         form = HTTPRequestForm()
 
     return render(request, 'home.html', {'form': form, 'status': None})
+
+def is_valid_json(text):
+    try:
+        json.loads(text)
+        return True
+    except ValueError:
+        return False

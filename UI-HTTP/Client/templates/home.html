@@ -4,13 +4,14 @@
 <head>
     <title>HTTP Request Form</title>
     <link rel="stylesheet" href="{% static 'css/base.css' %}">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
 </head>
 <body>
     <h2>HTTP Request Form</h2>
-    <form method="post" action="">
+    <form method="post" action="" class="form-group">
         {% csrf_token %}
         {{ form.as_p }}
-        <button type="submit">Enviar solicitud</button>
+        <button type="submit" class="btn btn-primary">Enviar solicitud</button>
     </form>
 
     <br>

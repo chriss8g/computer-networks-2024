@@ -21,8 +21,9 @@ def HomePageView(request):
                 response = send_request(host, port, method, resource, data)
             except Exception as e:
                 response = f"Error: {str(e)}"
-
-            print(f"!!!!!!!!!{response}")
+            print("---------------------------------------------------------")
+            print(f"\n{response}")
+            print("---------------------------------------------------------")
             return render(request, 'home.html', {'form': form, 'server_response': response})
     else:
         form = HTTPRequestForm()

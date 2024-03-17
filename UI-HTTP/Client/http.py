@@ -1,42 +1,38 @@
 import socket
-import json
 
 def send_request(host, port, method, resource, data=None):
     # Create a TCP/IP socket
     client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-
     # Connect the socket to the server
     client_socket.connect((host, port))
     # print(f"Conectado a {host}:{port}")
 
     # Build the HTTP request
     if data:
-        data_json = json.dumps(data)
-        content_length = len(data_json)
+        content_length = len(data)
         http_request = f"{method} {resource} HTTP/1.1\r\n" \
                     f"Host: {host}\r\n" \
                     f"Content-Type: application/json\r\n" \
                     f"Content-Length: {content_length}\r\n\r\n" \
-                    f"{data_json}"
+                    f"{data}"
     else:
         http_request = f"{method} {resource} HTTP/1.1\r\n" \
                        f"Host: {host}\r\n\r\n"
 
-    # print("-----------------------------------------")
-    # print(http_request)
-    # print("-----------------------------------------")
     # Send the request to the server
     client_socket.sendall(http_request.encode())
     # print(f"{method} Request enviado...")
 
     # Receive and display the server's response
     response = receive_response(client_socket)
-    # print("-----------------------------------------")
-    # print(response)
-    # print("-----------------------------------------")
+
+    if(not response): return "Error!!!", "", ""
+
+    status, body, headers = parse_response(response)
+
     # Close the connection
     client_socket.close()
-    return response
+    return status, body, headers
 
 def receive_response(socket, timeout=2):
     response = b""
@@ -53,6 +49,28 @@ def receive_response(socket, timeout=2):
             raise  # Si la excepción no es un timeout, relanzarla
 
     return response.decode("utf-8")
+
+def parse_response(response):
+
+    # Separa la respuesta en status, headers y body
+    headers, body = response.split('\r\n\r\n', 1)
+    
+    # # Separa el status en el código y el mensaje
+    # status_code, status_message = status_line.split(' ', 1)
+    
+    # # Parsea los headers en un diccionario
+    # headers_dict = {}
+    first = True
+    newHeaders = ""
+    status_line = ""
+    for header in headers.split('\r\n'):
+        if first:
+            status_line = header
+            first = False
+        else:
+            newHeaders = newHeaders + header + '\r\n'
+    newHeaders = newHeaders[:-2]
+    return status_line, body, newHeaders
 
 # if __name__ == "__main__":
 #     # Server configuration

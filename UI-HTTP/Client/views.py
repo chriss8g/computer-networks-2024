@@ -1,8 +1,8 @@
 # En views.py
 from django.shortcuts import render
-from django.http import HttpResponse
 from .forms import HTTPRequestForm
 from .http import send_request
+import json
 
 
 def HomePageView(request):
@@ -16,16 +16,18 @@ def HomePageView(request):
             resource = form.cleaned_data['resource']
             data = form.cleaned_data['data']
 
+            status, body, headers = "", "", ""
             # Envia la solicitud HTTP utilizando la función existente
             try:
-                response = send_request(host, port, method, resource, data)
+                status, body, headers = send_request(host, port, method, resource, data)
+                if(method in ["GET", "POST", "PUT"]):
+                    json_obj = json.loads(body)
+                    body = json.dumps(json_obj, indent=4, sort_keys=True)
             except Exception as e:
-                response = f"Error: {str(e)}"
-            print("---------------------------------------------------------")
-            print(f"\n{response}")
-            print("---------------------------------------------------------")
-            return render(request, 'home.html', {'form': form, 'server_response': response})
+                status = f"Error: {str(e)}"
+
+            return render(request, 'home.html', {'form': form, 'status': status, 'body': body, 'headers': headers.split('\r\n')})
     else:
         form = HTTPRequestForm()
 
-    return render(request, 'home.html', {'form': form, 'server_response': None})
+    return render(request, 'home.html', {'form': form, 'status': None})

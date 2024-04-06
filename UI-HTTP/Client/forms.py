@@ -8,6 +8,8 @@ class HTTPRequestForm(forms.Form):
         ('PUT', 'PUT'),
         ('DELETE', 'DELETE'),
         ('HEAD', 'HEAD'),
+        ('CONNECT', 'CONNECT'),
+        ('OPTIONS', 'OPTIONS'),
     ]
    
     method = forms.ChoiceField(choices=METHOD_CHOICES, label='Method')

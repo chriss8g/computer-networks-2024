@@ -1,5 +1,13 @@
 import socket
 from threading import Thread
+import mysql.connector
+
+db_config = {
+    'host': 'localhost',
+    'user': 'root',
+    'password': 'Mandi1709',
+    'database': 'ventas'
+}
 
 def handle_client(client_socket):
     request_data = client_socket.recv(1024).decode()
@@ -13,15 +21,56 @@ def handle_client(client_socket):
 
     # Construir la respuesta HTTP
     if method == 'GET':
-        response_body = "<html><body><h1>Hello, World!</h1></body></html>"
+        try:
+            # Conexión a la base de datos
+            conn = mysql.connector.connect(**db_config)
+            cursor = conn.cursor()
+            
+            table = path.split("/")[-1]
+            # Ejecutar consulta para obtener datos
+            cursor.execute(f"SELECT * FROM {table}")
+            rows = cursor.fetchall()
+
+            # Construir la respuesta HTTP con los datos obtenidos
+            response_body = ""
+            for row in rows:
+                response_body += f"{row}\r\n"
+
+            # Cerrar la conexión a la base de datos
+            cursor.close()
+            conn.close()
+        except mysql.connector.Error as err:
+            print("Error:", err)
+            response_body = "Error retrieving data from MySQL"
+
     elif method == 'POST':
-        content_length = int(request_data.split('Content-Length: ')[1].split('\r\n')[0])
-        request_body = request_data.split('\r\n\r\n')[1]
-        response_body = f"<html><body><h1>POST Data Received:</h1><p>{request_body}</p></body></html>"
+        try:
+            content_length = int(request_data.split('Content-Length: ')[1].split('\r\n')[0])
+            request_body = request_data.split('\r\n\r\n')[1][:content_length]
+
+            # Conexión a la base de datos
+            conn = mysql.connector.connect(**db_config)
+            cursor = conn.cursor()
+
+            table = path.split("/")[-1]
+            # Ejecutar inserción de datos en la base de datos
+            cursor.execute(f"INSERT INTO {table} (`NoC`, `NoP`, `Fecha`, `Cantidad`) VALUES ({request_body})")
+            conn.commit()
+
+            response_body = "Data inserted successfully into MySQL"
+
+            # Cerrar la conexión a la base de datos
+            cursor.close()
+            conn.close()
+        except mysql.connector.Error as err:
+            print("Error:", err)
+            response_body = "Error inserting data into MySQL"
+
     elif method == 'HEAD':
         response_body = ""
+
     else:
-        response_body = "<html><body><h1>Unsupported Method</h1></body></html>"
+        response_body = "Unsupported Method"
 
     response_headers = [
         "HTTP/1.1 200 OK",

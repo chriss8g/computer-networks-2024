@@ -65,10 +65,8 @@ def handle_client(client_socket):
         except mysql.connector.Error as err:
             print("Error:", err)
             response_body = "Error inserting data into MySQL"
-
     elif method == 'HEAD':
         response_body = ""
-
     else:
         response_body = "Unsupported Method"
 

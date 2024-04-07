@@ -1,38 +1,45 @@
 import socket
 
 def send_request(host, port, method, resource, data=None):
-    # Create a TCP/IP socket
-    client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    # Connect the socket to the server
-    client_socket.connect((host, port))
-    # print(f"Conectado a {host}:{port}")
+    try:
+        # Create a TCP/IP socket
+        client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        # Connect the socket to the server
+        client_socket.connect((host, port))
+        # print(f"Conectado a {host}:{port}")
 
-    # Build the HTTP request
-    if data:
-        content_length = len(data)
-        http_request = f"{method} {resource} HTTP/1.1\r\n" \
-                    f"Host: {host}\r\n" \
-                    f"Content-Type: application/json\r\n" \
-                    f"Content-Length: {content_length}\r\n\r\n" \
-                    f"{data}"
-    else:
-        http_request = f"{method} {resource} HTTP/1.1\r\n" \
-                       f"Host: {host}\r\n\r\n"
+        # Build the HTTP request
+        if data:
+            content_length = len(data)
+            http_request = f"{method} {resource} HTTP/1.1\r\n" \
+                        f"Host: {host}\r\n" \
+                        f"Content-Type: application/json\r\n" \
+                        f"Content-Length: {content_length}\r\n\r\n" \
+                        f"{data}"
+        else:
+            http_request = f"{method} {resource} HTTP/1.1\r\n" \
+                        f"Host: {host}\r\n\r\n"
 
-    # Send the request to the server
-    client_socket.sendall(http_request.encode())
-    # print(f"{method} Request enviado...")
+        # Send the request to the server
+        client_socket.sendall(http_request.encode())
+        # print(f"{method} Request enviado...")
 
-    # Receive and display the server's response
-    response = receive_response(client_socket)
+        # Receive and display the server's response
+        response = receive_response(client_socket)
 
-    if(not response): return "Error!!!", "", ""
+        if not response:
+                return "Error: No se recibió respuesta del servidor", "", ""
 
-    status, body, headers = parse_response(response)
+        status, body, headers = parse_response(response)
 
-    # Close the connection
-    client_socket.close()
-    return status, body, headers
+        # Close the connection
+        client_socket.close()
+        
+        return status, body, headers
+    except socket.error as e:
+        return f"Error de socket: {str(e)}", "", ""
+    except socket.timeout:
+        return "Tiempo de espera agotado al conectar al servidor", "", ""
 
 def receive_response(socket, timeout=2):
     response = b""

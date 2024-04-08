@@ -102,13 +102,12 @@ def parse_response(response):
     return status_line, body, newHeaders
 
 # if __name__ == "__main__":
-#     # Server configuration
-#     server_host = "localhost"
-#     server_port = 8000
+#     # URL del servidor
+#     server_url = "http://localhost:8000"
 
 #     # Ejemplo de solicitud GET
 #     requested_resource_get = "/api/tournament/"
-#     status, body, response_headers = send_request(server_host, server_port, "GET", requested_resource_get)
+#     status, body, response_headers = send_request("GET", server_url + requested_resource_get)
 #     print("GET request:")
 #     print("Status:", status)
 #     print("Response Body:", body)
@@ -124,7 +123,7 @@ def parse_response(response):
 #         "User-Agent": "MiAplicacion/1.0",
 #         "Authorization": "Bearer token"
 #     }
-#     status, body, response_headers = send_request(server_host, server_port, "POST", requested_resource_post, post_data, headers=headers, content_type="application/json")
+#     status, body, response_headers = send_request("POST", server_url + requested_resource_post, data=post_data, headers=headers, content_type="application/json")
 #     print("POST request:")
 #     print("Status:", status)
 #     print("Response Body:", body)
@@ -133,7 +132,7 @@ def parse_response(response):
     
 #     # Ejemplo de solicitud POST con datos en el cuerpo en formato XML
 #     post_data_xml = "<data><value>example</value></data>"
-#     status, body, response_headers = send_request(server_host, server_port, "POST", requested_resource_post, post_data_xml, content_type="application/xml")
+#     status, body, response_headers = send_request("POST", server_url + requested_resource_post, data=post_data_xml, content_type="application/xml")
 #     print("POST request (XML):")
 #     print("Status:", status)
 #     print("Response Body:", body)
@@ -142,7 +141,7 @@ def parse_response(response):
     
 #     # Ejemplo de solicitud POST con datos en el cuerpo en formato de formulario
 #     post_data_form = "name=John&age=30"
-#     status, body, response_headers = send_request(server_host, server_port, "POST", requested_resource_post, post_data_form, content_type="application/x-www-form-urlencoded")
+#     status, body, response_headers = send_request("POST", server_url + requested_resource_post, data=post_data_form, content_type="application/x-www-form-urlencoded")
 #     print("POST request (Form):")
 #     print("Status:", status)
 #     print("Response Body:", body)
@@ -150,11 +149,11 @@ def parse_response(response):
 #     print("-----------------------------------")
 
 #     # Ejemplo de solicitud PUT con datos en el cuerpo en formato JSON
-#     requested_resource_put = "/api/tournament/4/"
+#     requested_resource_put = "/api/tournament/11/"
 #     put_data = """{
 #         "name": "talla"
 #     }"""
-#     status, body, response_headers = send_request(server_host, server_port, "PUT", requested_resource_put, put_data)
+#     status, body, response_headers = send_request("PUT", server_url + requested_resource_put, data=put_data)
 #     print("PUT request:")
 #     print("Status:", status)
 #     print("Response Body:", body)
@@ -162,8 +161,8 @@ def parse_response(response):
 #     print("-----------------------------------")
 
 #     # Ejemplo de solicitud DELETE
-#     requested_resource_delete = "/api/tournament/4/"
-#     status, body, response_headers = send_request(server_host, server_port, "DELETE", requested_resource_delete)
+#     requested_resource_delete = "/api/tournament/11/"
+#     status, body, response_headers = send_request("DELETE", server_url + requested_resource_delete)
 #     print("DELETE request:")
 #     print("Status:", status)
 #     print("Response Body:", body)
@@ -172,7 +171,7 @@ def parse_response(response):
     
 #     # Ejemplo de solicitud HEAD
 #     requested_resource_head = "/api/tournament/"
-#     status, body, response_headers = send_request(server_host, server_port, "HEAD", requested_resource_head)
+#     status, body, response_headers = send_request("HEAD", server_url + requested_resource_head)
 #     print("HEAD request:")
 #     print("Status:", status)
 #     print("Response Body:", body)
@@ -181,7 +180,7 @@ def parse_response(response):
 
 #     # Ejemplo de solicitud OPTIONS
 #     requested_resource_options = "/api/tournament/"
-#     status, body, response_headers = send_request(server_host, server_port, "OPTIONS", requested_resource_options)
+#     status, body, response_headers = send_request("OPTIONS", server_url + requested_resource_options)
 #     print("OPTIONS request:")
 #     print("Status:", status)
 #     print("Response Body:", body)
@@ -190,7 +189,7 @@ def parse_response(response):
 
 #     # Ejemplo de solicitud CONNECT
 #     requested_resource_connect = "/api/tournament/"
-#     status, body, response_headers = send_request(server_host, server_port, "CONNECT", requested_resource_connect)
+#     status, body, response_headers = send_request("CONNECT", server_url + requested_resource_connect)
 #     print("CONNECT request:")
 #     print("Status:", status)
 #     print("Response Body:", body)
@@ -199,7 +198,7 @@ def parse_response(response):
 
 #     # Ejemplo de solicitud TRACE
 #     requested_resource_trace = "/api/tournament/"
-#     status, body, response_headers = send_request(server_host, server_port, "TRACE", requested_resource_trace)
+#     status, body, response_headers = send_request("TRACE", server_url + requested_resource_trace)
 #     print("TRACE request:")
 #     print("Status:", status)
 #     print("Response Body:", body)

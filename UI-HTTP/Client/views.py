@@ -18,7 +18,7 @@ def HomePageView(request):
             # Envia la solicitud HTTP utilizando la función existente
             try:
                 status, body, headers = send_request(method, url, data)
-                if(is_valid_json(body) and method in ["GET", "POST", "PUT", "OPTIONS"]):
+                if(is_valid_json(body) and method in ["GET", "POST", "PUT", "OPTIONS", "HEAD"]):
                     json_obj = json.loads(body)
                     body = json.dumps(json_obj, indent=4, sort_keys=True)
             except Exception as e:

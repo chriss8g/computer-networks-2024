@@ -1,6 +1,6 @@
 import socket
 
-def send_request(method, url, data=None, headers=None, content_type=None):
+def send_request(method, url, data=None, headers=None, content_type="application/json"):
     try:
         # Parse URL to extract host, port, and resource
         host, port, resource = parse_url(url)

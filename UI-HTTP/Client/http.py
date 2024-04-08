@@ -1,13 +1,16 @@
 import socket
 
-def send_request(host, port, method, resource, data=None, headers=None, content_type=None):
+def send_request(method, url, data=None, headers=None, content_type=None):
     try:
-        # Crear un socket TCP/IP
+        # Parse URL to extract host, port, and resource
+        host, port, resource = parse_url(url)
+
+        # Create a TCP/IP socket
         client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        # Conectar el socket al servidor
+        # Connect the socket to the server
         client_socket.connect((host, port))
 
-        # Construir la solicitud HTTP
+        # Build the HTTP request
         http_request = f"{method} {resource} HTTP/1.1\r\n" \
                        f"Host: {host}\r\n"
 
@@ -25,26 +28,40 @@ def send_request(host, port, method, resource, data=None, headers=None, content_
         else:
             http_request += "\r\n"
 
-        # Enviar la solicitud al servidor
+        # Send the request to the server
         client_socket.sendall(http_request.encode())
 
-        # Recibir y mostrar la respuesta del servidor
+        # Receive and display the server's response
         response = receive_response(client_socket)
 
         if not response:
-            return "Error: No se recibió respuesta del servidor", "", ""
+            return "Error: No response received from the server", "", ""
 
         status, body, response_headers = parse_response(response)
 
-        # Cerrar la conexión
+        # Close the connection
         client_socket.close()
 
         return status, body, response_headers
 
     except socket.error as e:
-        return f"Error de socket: {str(e)}", "", ""
+        return f"Socket error: {str(e)}", "", ""
     except socket.timeout:
-        return "Tiempo de espera agotado al conectar al servidor", "", ""
+        return "Connection timeout while connecting to the server", "", ""
+
+def parse_url(url):
+    # Remove the protocol if present
+    if '://' in url:
+        url = url.split('://')[1]
+
+    # Split the URL into host, port, and resource
+    parts = url.split('/')
+    host_port = parts[0].split(':')
+    host = host_port[0]
+    port = int(host_port[1]) if len(host_port) > 1 else 80
+    resource = '/' + '/'.join(parts[1:]) if len(parts) > 1 else '/'
+
+    return host, port, resource
 
 def receive_response(socket, timeout=2):
     response = b""
@@ -148,6 +165,42 @@ def parse_response(response):
 #     requested_resource_delete = "/api/tournament/4/"
 #     status, body, response_headers = send_request(server_host, server_port, "DELETE", requested_resource_delete)
 #     print("DELETE request:")
+#     print("Status:", status)
+#     print("Response Body:", body)
+#     print("Response Headers:", response_headers)
+#     print("-----------------------------------")
+    
+#     # Ejemplo de solicitud HEAD
+#     requested_resource_head = "/api/tournament/"
+#     status, body, response_headers = send_request(server_host, server_port, "HEAD", requested_resource_head)
+#     print("HEAD request:")
+#     print("Status:", status)
+#     print("Response Body:", body)
+#     print("Response Headers:", response_headers)
+#     print("-----------------------------------")
+
+#     # Ejemplo de solicitud OPTIONS
+#     requested_resource_options = "/api/tournament/"
+#     status, body, response_headers = send_request(server_host, server_port, "OPTIONS", requested_resource_options)
+#     print("OPTIONS request:")
+#     print("Status:", status)
+#     print("Response Body:", body)
+#     print("Response Headers:", response_headers)
+#     print("-----------------------------------")
+
+#     # Ejemplo de solicitud CONNECT
+#     requested_resource_connect = "/api/tournament/"
+#     status, body, response_headers = send_request(server_host, server_port, "CONNECT", requested_resource_connect)
+#     print("CONNECT request:")
+#     print("Status:", status)
+#     print("Response Body:", body)
+#     print("Response Headers:", response_headers)
+#     print("-----------------------------------")
+
+#     # Ejemplo de solicitud TRACE
+#     requested_resource_trace = "/api/tournament/"
+#     status, body, response_headers = send_request(server_host, server_port, "TRACE", requested_resource_trace)
+#     print("TRACE request:")
 #     print("Status:", status)
 #     print("Response Body:", body)
 #     print("Response Headers:", response_headers)

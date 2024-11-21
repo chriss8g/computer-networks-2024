@@ -138,7 +138,7 @@ def handle_client(client_socket):
     client_socket.sendall(response.encode())
     client_socket.close()
 
-def run_server(host='', port=8888):
+def run_server(host='', port=8080):
     server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     server_socket.bind((host, port))
     server_socket.listen(5)

@@ -62,11 +62,40 @@ def handle_client(client_socket):
                 response_body = f"GET request successful! Path: {path}."
         elif method == "POST":
             try:
+                # Validar longitud del cuerpo
                 content_length = int(headers.get("Content-Length", 0))
                 body = request_data.split("\r\n\r\n")[1][:content_length]
-                response_body = f"POST request successful! Body received: {body}."
-            except (IndexError, ValueError):
-                response_body = "POST request failed. Body is missing or malformed."
+
+                # Validar contenido según Content-Type
+                content_type = headers.get("Content-Type", "text/plain")
+                if content_type == "application/json":
+                    try:
+                        import json
+                        json.loads(body)  # Intentar parsear como JSON
+                        response_body = f"POST request successful! JSON body received: {body}."
+                    except json.JSONDecodeError:
+                        raise ValueError("Malformed JSON body")
+                elif content_type == "application/xml":
+                    try:
+                        import xml.etree.ElementTree as ET
+                        ET.fromstring(body)  # Intentar parsear como XML
+                        response_body = f"POST request successful! XML body received: {body}."
+                    except ET.ParseError:
+                        raise ValueError("Malformed XML body")
+                else:
+                    # Manejar cuerpos de texto o desconocidos
+                    response_body = f"POST request successful! Plain text body received: {body}."
+            except (IndexError, ValueError) as e:
+                response_headers = [
+                    "HTTP/1.1 400 Bad Request",
+                    "Content-Type: text/plain",
+                    f"Content-Length: {len(str(e))}"
+                ]
+                response = "\r\n".join(response_headers) + "\r\n\r\n" + str(e)
+                client_socket.sendall(response.encode())
+                client_socket.close()
+                return
+
         elif method == "HEAD":
             response_body = ""
         elif method == "PUT":

@@ -1,88 +1,69 @@
 import socket
 from threading import Thread
-import mysql.connector
 
-db_config = {
-    'host': 'localhost',
-    'user': 'root',
-    'password': 'Mandi1709',
-    'database': 'ventas'
-}
-
+# Función para manejar cada cliente
 def handle_client(client_socket):
     request_data = client_socket.recv(1024).decode()
-
     # Extraer la línea de solicitud HTTP
     request_line = request_data.split('\r\n')[0]
     method, path, protocol = request_line.split()
 
-    # Mostrar la solicitud recibida
     print(f"Request: {method} {path} {protocol}")
 
-    # Construir la respuesta HTTP
-    if method == 'GET':
-        try:
-            # Conexión a la base de datos
-            conn = mysql.connector.connect(**db_config)
-            cursor = conn.cursor()
-            
-            table = path.split("/")[-1]
-            # Ejecutar consulta para obtener datos
-            cursor.execute(f"SELECT * FROM {table}")
-            rows = cursor.fetchall()
-
-            # Construir la respuesta HTTP con los datos obtenidos
+    # Casos de prueba para métodos HTTP
+    if method == "GET":
+        if path == "/hello":
+            response_body = "Hello, world!"
+        elif path == "/empty":
             response_body = ""
-            for row in rows:
-                response_body += f"{row}\r\n"
-
-            # Cerrar la conexión a la base de datos
-            cursor.close()
-            conn.close()
-        except mysql.connector.Error as err:
-            print("Error:", err)
-            response_body = "Error retrieving data from MySQL"
-
-    elif method == 'POST':
+        else:
+            response_body = f"GET request received for {path}"
+    
+    elif method == "POST":
+        # Leer el cuerpo de la solicitud
         try:
-            content_length = int(request_data.split('Content-Length: ')[1].split('\r\n')[0])
+            content_length = int(request_data.split("Content-Length: ")[1].split('\r\n')[0])
             request_body = request_data.split('\r\n\r\n')[1][:content_length]
-
-            # Conexión a la base de datos
-            conn = mysql.connector.connect(**db_config)
-            cursor = conn.cursor()
-
-            table = path.split("/")[-1]
-            # Ejecutar inserción de datos en la base de datos
-            cursor.execute(f"INSERT INTO {table} (`NoC`, `NoP`, `Fecha`, `Cantidad`) VALUES ({request_body})")
-            conn.commit()
-
-            response_body = "Data inserted successfully into MySQL"
-
-            # Cerrar la conexión a la base de datos
-            cursor.close()
-            conn.close()
-        except mysql.connector.Error as err:
-            print("Error:", err)
-            response_body = "Error inserting data into MySQL"
-    elif method == 'HEAD':
+            response_body = f"POST data received: {request_body}"
+        except (IndexError, ValueError):
+            response_body = "Invalid POST request"
+    
+    elif method == "HEAD":
         response_body = ""
-    else:
-        response_body = "Unsupported Method"
+    
+    elif method == "PUT":
+        response_body = "PUT method received but not implemented"
+    
+    elif method == "DELETE":
+        response_body = f"DELETE request received for {path}"
+    
+    elif method == "OPTIONS":
+        response_headers = [
+            "HTTP/1.1 204 No Content",
+            "Allow: GET, POST, HEAD, PUT, DELETE, OPTIONS",
+            "Content-Length: 0"
+        ]
+        response = "\r\n".join(response_headers) + "\r\n\r\n"
+        client_socket.sendall(response.encode())
+        client_socket.close()
+        return
 
+    else:
+        response_body = "Unsupported HTTP method"
+
+    # Construir la respuesta HTTP
     response_headers = [
         "HTTP/1.1 200 OK",
-        "Content-Type: text/html",
+        "Content-Type: text/plain",
         f"Content-Length: {len(response_body)}"
     ]
     response = "\r\n".join(response_headers) + "\r\n\r\n" + response_body
 
     # Enviar la respuesta al cliente
     client_socket.sendall(response.encode())
-
-    # Cerrar la conexión con el cliente
     client_socket.close()
 
+# Función para correr el servidor
 def run_server(host='', port=8888):
     server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     server_socket.bind((host, port))
@@ -95,5 +76,6 @@ def run_server(host='', port=8888):
         client_handler = Thread(target=handle_client, args=(client_socket,))
         client_handler.start()
 
-if __name__ == '__main__':
+# Inicia el servidor
+if __name__ == "__main__":
     run_server()
